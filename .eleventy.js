@@ -60,11 +60,15 @@ module.exports = function(config) {
   config.setBrowserSyncConfig({
     callbacks: {
       ready: function(err, browserSync) {
-        const content_404 = fs.readFileSync('dist/404.html');
-
         browserSync.addMiddleware('*', (req, res) => {
-          // Provides the 404 content without redirect.
-          res.write(content_404);
+          // Read the 404 content when needed, not at startup
+          try {
+            const content_404 = fs.readFileSync('dist/404.html');
+            res.write(content_404);
+          } catch (error) {
+            // Fallback if 404.html doesn't exist yet
+            res.write('<h1>404 - Page Not Found</h1>');
+          }
           res.end();
         });
       }
